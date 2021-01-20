@@ -16,13 +16,7 @@
             </template>
 
             <template v-slot:after>
-                <q-btn
-                    round
-                    dense
-                    flat
-                    icon="shopping_cart"
-                    @click="resetData"
-                />
+                <q-btn round dense flat icon="clear" @click="resetData" />
             </template>
         </q-file>
 
@@ -31,7 +25,7 @@
         >
             <div v-for="page in numPages" :key="page" class="q-pa-xs">
                 <q-checkbox v-model="selected[page]" :label="`${page}`" />
-                <pdf :src="src" :page="page" />
+                <pdf :src="src" :page="page"/>
             </div>
         </div>
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
@@ -40,8 +34,12 @@
                 icon="get_app"
                 color="accent"
                 @click="createNewDocDialog"
-                :disable="!fileLoaded"
-            />
+                :disable="!fileLoaded || !numSelectedPages"
+            >
+                <q-badge color="red" floating v-if="numSelectedPages">{{
+                    numSelectedPages
+                }}</q-badge>
+            </q-btn>
         </q-page-sticky>
     </q-page>
 </template>
@@ -68,6 +66,13 @@ export default {
             fileLoaded: false,
         }
     },
+    computed: {
+        numSelectedPages() {
+            return Object.keys(this.selected).filter(
+                (page) => this.selected[page]
+            ).length
+        },
+    },
     methods: {
         pickerPDF(file) {
             if (this.fileChosen && file) {
@@ -81,9 +86,7 @@ export default {
                 this.numPages = pdf.numPages
                 this.fileChosen = true
 
-                for (let index = 1; index <= this.numPages; index++) {
-                    this.$set(this.selected, index, false)
-                }
+                this.unselectAllPages()
             })
 
             file.arrayBuffer()
@@ -92,6 +95,13 @@ export default {
                     this.pdfDocument = pdfDoc
                     this.fileLoaded = true
                 })
+        },
+        unselectAllPages() {
+            if (this.numPages) {
+                for (let index = 1; index <= this.numPages; index++) {
+                    this.$set(this.selected, index, false)
+                }
+            }
         },
         createNewDocDialog() {
             this.$q
@@ -142,9 +152,10 @@ export default {
                     copiedPages.forEach((page) => _newPdf.addPage(page))
                     return _newPdf.save()
                 })
-                .then((pdfBytes) =>
+                .then((pdfBytes) => {
+                    this.unselectAllPages()
                     download(pdfBytes, `${fileName}.pdf`, "application/pdf")
-                )
+                })
                 .catch((err) => {
                     this.$q.notify({
                         message: "Algo deu erro ao abrir o arquivo.",
