@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="lHh Lpr lFf">
+    <q-layout view="lHh lpR lFf">
         <q-header elevated>
             <q-toolbar>
                 <q-btn
@@ -60,6 +60,41 @@
         <q-page-container>
             <router-view />
         </q-page-container>
+
+        <transition
+            appear
+            enter-active-class="animated fadeIn"
+            leave-active-class="animated fadeOut"
+        >
+            <q-footer elevated v-show="showAppInstallBanner">
+                <q-banner inline-actions class="text-primary">
+                    <template v-slot:avatar>
+                        <q-icon name="system_update" color="primary" />
+                    </template>
+                    Deseja instalar o aplicativo?
+                    <template v-slot:action>
+                        <q-btn
+                            flat
+                            color="primary"
+                            label="Sim"
+                            @click="installApp"
+                        />
+                        <q-btn
+                            flat
+                            color="primary"
+                            label="Depois"
+                            @click="showAppInstallBanner = false"
+                        />
+                        <q-btn
+                            flat
+                            color="primary"
+                            label="Nunca"
+                            @click="neverShowAppInstallBanner"
+                        />
+                    </template>
+                </q-banner>
+            </q-footer>
+        </transition>
     </q-layout>
 </template>
 
@@ -114,6 +149,8 @@ export default {
             leftDrawerOpen: false,
             essentialLinks: linksData,
             version,
+            showAppInstallBanner: false,
+            deferredPrompt: null,
         }
     },
     computed: {
@@ -156,6 +193,43 @@ export default {
                 }
             }, 1000)
         },
+        installApp() {
+            // Hide the app provided install promotion
+            this.showAppInstallBanner = false
+            // Show the install prompt
+            this.deferredPrompt.prompt()
+            // Wait for the user to respond to the prompt
+            this.deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === "accepted") {
+                    console.log("User accepted the install prompt")
+                } else {
+                    console.log("User dismissed the install prompt")
+                }
+            })
+        },
+        neverShowAppInstallBanner() {
+            this.showAppInstallBanner = false
+            this.$q.localStorage.set("neverShowAppInstallBanner", true)
+        },
+    },
+    mounted() {
+        const neverShowAppInstallBanner = this.$q.localStorage.getItem(
+            "neverShowAppInstallBanner"
+        )
+
+        if (!neverShowAppInstallBanner) {
+            window.addEventListener("beforeinstallprompt", (e) => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault()
+                // Stash the event so it can be triggered later.
+                this.deferredPrompt = e
+                // Update UI notify the user they can install the PWA
+
+                setTimeout(() => {
+                    this.showAppInstallBanner = true
+                }, 3000)
+            })
+        }
     },
 }
 </script>

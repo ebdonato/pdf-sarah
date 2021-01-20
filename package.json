@@ -1,12 +1,15 @@
 {
   "name": "pdf-sarah",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Ferramenta para a Sarah agrupar PDFs",
   "productName": "PDF da Sarah",
   "author": "Eduardo Donato <eduardo.donato@gmail.com>",
   "private": true,
   "scripts": {
     "dev": "quasar dev",
+    "build": "quasar build",
+    "dev-pwa": "quasar dev -m pwa",
+    "build-pwa": "quasar build -m pwa",
     "icongenie": "icongenie generate -i ./public/logo.png --skip-trim --theme-color a300a3"
   },
   "dependencies": {
@@ -19,7 +22,8 @@
     "vue-pdf": "^4.2.0"
   },
   "devDependencies": {
-    "@quasar/app": "^2.0.0"
+    "@quasar/app": "^2.0.0",
+    "workbox-webpack-plugin": "^5.1.4"
   },
   "browserslist": [
     "last 10 Chrome versions",
