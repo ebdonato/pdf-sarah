@@ -21,11 +21,17 @@
         </q-file>
 
         <div
-            class="fit row wrap justify-start items-start content-start q-my-sm"
+            class="fit row wrap justify-start items-start content-start q-my-sm q-gutter-sm"
         >
-            <div v-for="page in numPages" :key="page" class="q-pa-xs">
+            <div
+                v-for="page in numPages"
+                :key="page"
+                class="q-pa-xs"
+                @click="selected[page] = !selected[page]"
+                :class="{ pageSelected: selected[page] }"
+            >
                 <q-checkbox v-model="selected[page]" :label="`${page}`" />
-                <pdf :src="src" :page="page"/>
+                <pdf :src="src" :page="page" />
             </div>
         </div>
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
@@ -170,3 +176,8 @@ export default {
     },
 }
 </script>
+
+<style lang="sass" scoped>
+.pageSelected
+    border: 1px dotted $primary
+</style>
