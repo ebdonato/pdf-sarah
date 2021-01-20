@@ -1,10 +1,13 @@
 <template>
-  <div id="q-app">
-    <router-view />
-  </div>
+    <div id="q-app">
+        <router-view />
+    </div>
 </template>
 <script>
 export default {
-  name: 'App'
+    name: "App",
+    mounted() {
+        this.$q.dark.set(this.$q.localStorage.getItem("darkTheme")) ?? false
+    },
 }
 </script>
