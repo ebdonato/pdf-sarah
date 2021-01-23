@@ -11,17 +11,9 @@
                     @click="leftDrawerOpen = !leftDrawerOpen"
                 />
 
-                <q-avatar square v-show="!leftDrawerOpen">
-                    <img src="icons\favicon-32x32.png" />
-                </q-avatar>
-
-                <q-toolbar-title> PDF da Sarah </q-toolbar-title>
-
-                <q-btn round @click="autoClose">
-                    <q-avatar>
-                        <img src="eu.jpg" />
-                    </q-avatar>
-                </q-btn>
+                <q-toolbar-title class="q-pl-lg text-app-title">
+                    PDF da Sarah
+                </q-toolbar-title>
             </q-toolbar>
         </q-header>
 
@@ -51,9 +43,29 @@
                 label="Tema"
                 class="q-ma-md"
             />
+            <q-select
+                outlined
+                v-model="outputFolder"
+                :options="['Local Padrão', 'Escolher local']"
+                label="Salvar em"
+                class="q-ma-md"
+            />
+            <q-select
+                outlined
+                v-model="clearSelection"
+                :options="['Sim', 'Não']"
+                label="Limpar seleção ao salvar"
+                class="q-ma-md"
+            />
 
-            <div class="q-ma-md">
-                App v{{ version }} | Quasar v{{ $q.version }}
+            <div class="row q-ma-md items-end">
+                <q-btn round @click="autoClose">
+                    <q-avatar>
+                        <img src="eu.jpg" />
+                    </q-avatar>
+                </q-btn>
+                <q-space />
+                <span> App v{{ version }} | Quasar v{{ $q.version }} </span>
             </div>
         </q-drawer>
 
@@ -154,6 +166,32 @@ export default {
         }
     },
     computed: {
+        outputFolder: {
+            get() {
+                return this.$store.state.config.defaultOutputFolder
+                    ? "Local Padrão"
+                    : "Escolher local"
+            },
+            set(value) {
+                const option = value === "Local Padrão"
+                this.$store.commit(
+                    "config/updateDefaultOutputFolderConfig",
+                    option
+                )
+                this.$q.localStorage.set("defaultOutputFolder", option)
+            },
+        },
+        clearSelection: {
+            get() {
+                return this.$store.state.config.clearSelection ? "Sim" : "Não"
+            },
+            set(value) {
+                const option = value === "Sim"
+                this.$store.commit("config/updateClearSelectionConfig", option)
+                this.$q.localStorage.set("clearSelection", option)
+            },
+        },
+
         theme: {
             get() {
                 return this.$q.dark.isActive ? "Escuro" : "Claro"

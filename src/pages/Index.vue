@@ -5,11 +5,7 @@
             @input="pickerPDF"
             accept=".pdf"
             :disable="fileChosen"
-            :label="
-                fileChosen
-                    ? 'Nome do Arquivo Original'
-                    : 'Clique aqui para escolher o arquivo PDF original'
-            "
+            :label="fileChosen ? 'PDF aberto' : 'Abrir PDF'"
         >
             <template v-slot:prepend>
                 <q-icon name="attach_file" />
@@ -39,7 +35,7 @@
                 fab
                 icon="get_app"
                 color="accent"
-                @click="createNewDocDialog"
+                @click="getNewDoc"
                 :disable="!fileLoaded || !numSelectedPages"
             >
                 <q-badge color="red" floating v-if="numSelectedPages">{{
@@ -109,7 +105,23 @@ export default {
                 }
             }
         },
-        createNewDocDialog() {
+        isValidFilename(filename) {
+            const rg1 = /^[^\\/:\*\?"<>\|]+$/ // forbidden characters \ / : * ? " < > |
+            const rg2 = /^\./ // cannot start with dot (.)
+            const rg3 = /^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i // forbidden file names
+
+            return (
+                rg1.test(filename) && !rg2.test(filename) && !rg3.test(filename)
+            )
+        },
+        getNewDoc() {
+            if (this.$store.state.config.defaultOutputFolder) {
+                this.createNewDocDefaultFolder()
+            } else {
+                this.createNewDoc()
+            }
+        },
+        createNewDocDefaultFolder() {
             this.$q
                 .dialog({
                     title: "Criar PDF",
@@ -121,12 +133,28 @@ export default {
                     cancel: true,
                     persistent: true,
                 })
-                .onOk((data) => {
+                .onOk((fileNameChosen) => {
                     if (
-                        typeof data === "string" &&
-                        this.isValidFilename(data)
+                        typeof fileNameChosen === "string" &&
+                        this.isValidFilename(fileNameChosen)
                     ) {
-                        this.createNewDoc(data)
+                        this.createNewPDFDocumentPromise()
+                            .then((pdfBytes) => {
+                                this.unselectAllPages()
+                                download(
+                                    pdfBytes,
+                                    `${fileNameChosen}.pdf`,
+                                    "application/pdf"
+                                )
+                            })
+                            .catch((err) => {
+                                this.$q.notify({
+                                    message:
+                                        "Algo deu ao criar o novo arquivo.",
+                                    color: "negative",
+                                })
+                                console.error(err)
+                            })
                     } else {
                         this.$q.notify({
                             message: "Nome de Arquivo Inválido.",
@@ -135,39 +163,59 @@ export default {
                     }
                 })
         },
-        isValidFilename(filename) {
-            const rg1 = /^[^\\/:\*\?"<>\|]+$/ // forbidden characters \ / : * ? " < > |
-            const rg2 = /^\./ // cannot start with dot (.)
-            const rg3 = /^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i // forbidden file names
-
-            return (
-                rg1.test(filename) && !rg2.test(filename) && !rg3.test(filename)
-            )
-        },
-        createNewDoc(fileName) {
+        createNewPDFDocumentPromise() {
             const pages = Object.keys(this.selected)
                 .filter((page) => this.selected[page])
                 .map((page) => parseInt(page) - 1)
 
             let _newPdf
 
-            PDFDocument.create()
+            return PDFDocument.create()
                 .then((pdfDoc) => (_newPdf = pdfDoc))
                 .then((pdfDoc) => pdfDoc.copyPages(this.pdfDocument, pages))
                 .then((copiedPages) => {
                     copiedPages.forEach((page) => _newPdf.addPage(page))
+                    if (this.$store.state.config.clearSelection) {
+                        this.unselectAllPages()
+                    }
                     return _newPdf.save()
                 })
-                .then((pdfBytes) => {
-                    this.unselectAllPages()
-                    download(pdfBytes, `${fileName}.pdf`, "application/pdf")
-                })
-                .catch((err) => {
+        },
+        async createNewDoc() {
+            const opts = {
+                types: [
+                    {
+                        description: "Arquivos PDF",
+                        accept: { "application/pdf": [".pdf"] },
+                    },
+                ],
+            }
+
+            let writable
+
+            try {
+                const handle = await window.showSaveFilePicker(opts)
+                writable = await handle.createWritable()
+            } catch (error) {
+                return
+            }
+
+            this.createNewPDFDocumentPromise()
+                .then((pdfBytes) => writable.write(pdfBytes))
+                .then(() => {
                     this.$q.notify({
-                        message: "Algo deu erro ao abrir o arquivo.",
+                        message: "Arquivo criado com sucesso",
+                        color: "positive",
+                    })
+                })
+                .catch(() => {
+                    this.$q.notify({
+                        message: "Algo deu ao criar o novo arquivo.",
                         color: "negative",
                     })
-                    console.error(err)
+                })
+                .finally(() => {
+                    writable.close()
                 })
         },
         resetData() {

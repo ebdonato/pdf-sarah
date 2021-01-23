@@ -15,6 +15,6 @@ import { StaleWhileRevalidate } from 'workbox-strategies'
 precacheAndRoute(self.__WB_MANIFEST);
 
 registerRoute(
-    () => true,
+    ({ url }) => url.href.startsWith('http'),
     new StaleWhileRevalidate()
 )
