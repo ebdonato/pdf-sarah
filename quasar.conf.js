@@ -109,13 +109,13 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'InjectManifest', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `PDF da Sarah`,
-        short_name: `PDF da Sarah`,
-        description: `Ferramenta para a Sarah agrupar PDFs`,
+        name: `PDF da Dona Sarah`,
+        short_name: `PDF da Dona Sarah`,
+        description: `Ferramenta para a Dona Sarah agrupar PDFs`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
-        theme_color: '#a300a3',
+        theme_color: '#753a88',
         icons: [
           {
             src: 'icons/icon-128x128.png',

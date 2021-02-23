@@ -1,30 +1,26 @@
 <template>
-    <q-layout view="lHh lpR lFf">
-        <q-header elevated>
+    <q-layout view="lHh Lpr lFf" :class="bgClass">
+        <q-header class="bg-transparent">
             <q-toolbar>
                 <q-btn
-                    flat
                     dense
+                    unelevated
+                    :color="$q.dark.isActive ? 'primary' : 'secondary'"
                     round
                     icon="menu"
                     aria-label="Menu"
                     @click="leftDrawerOpen = !leftDrawerOpen"
                 />
-
-                <q-toolbar-title class="q-pl-lg text-app-title">
-                    PDF da Sarah
-                </q-toolbar-title>
             </q-toolbar>
         </q-header>
 
         <q-drawer
             v-model="leftDrawerOpen"
-            show-if-above
             bordered
             :content-class="$q.dark.isActive ? 'bg-purple-4' : 'bg-purple-1'"
         >
             <div class="q-ma-none q-pa-md text-center">
-                <img alt="PDF da Sarah" src="icons\favicon-128x128.png" />
+                <img alt="PDF da Dona Sarah" src="icons\favicon-128x128.png" />
             </div>
 
             <q-list>
@@ -73,13 +69,17 @@
             <router-view />
         </q-page-container>
 
-        <transition
-            appear
-            enter-active-class="animated fadeIn"
-            leave-active-class="animated fadeOut"
-        >
-            <q-footer elevated v-show="showAppInstallBanner">
-                <q-banner inline-actions class="text-primary">
+        <q-footer class="bg-transparent">
+            <transition
+                appear
+                enter-active-class="animated fadeIn"
+                leave-active-class="animated fadeOut"
+            >
+                <q-banner
+                    inline-actions
+                    class="text-primary"
+                    v-show="showAppInstallBanner"
+                >
                     <template v-slot:avatar>
                         <q-icon name="system_update" color="primary" />
                     </template>
@@ -105,8 +105,11 @@
                         />
                     </template>
                 </q-banner>
-            </q-footer>
-        </transition>
+            </transition>
+            <div class="skyline text-center text-caption q-pt-xl">
+                PDF da Dona Sarah ©{{ new Date().getFullYear() }}
+            </div>
+        </q-footer>
     </q-layout>
 </template>
 
@@ -191,7 +194,9 @@ export default {
                 this.$q.localStorage.set("clearSelection", option)
             },
         },
-
+        bgClass() {
+            return this.$q.dark.isActive ? "drawer-bg-dark" : "drawer-bg-light"
+        },
         theme: {
             get() {
                 return this.$q.dark.isActive ? "Escuro" : "Claro"
@@ -271,3 +276,23 @@ export default {
     },
 }
 </script>
+
+<style lang="sass">
+.drawer-bg-light
+    background: $color1
+    background: -webkit-linear-gradient(to bottom, $color1, $color2)
+    background: linear-gradient(to bottom, $color1, $color2)
+
+.drawer-bg-dark
+    background: $color3
+    background: -webkit-linear-gradient(to bottom, $color3, $color4)
+    background: linear-gradient(to bottom, $color3, $color4)
+
+.skyline
+    background: url(../../public/skyline.png)
+    background-size: contain
+    background-position: center bottom
+
+.bg-translucid
+    background: #000000c5
+</style>

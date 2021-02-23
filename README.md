@@ -1,6 +1,6 @@
 # PDF da Sarah (pdf-sarah)
 
-Ferramenta para a Sarah agrupar PDFs
+Ferramenta para a Dona Sarah agrupar PDFs
 
 ## O problema
 
