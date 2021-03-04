@@ -17,17 +17,36 @@
         </q-file>
 
         <div
-            class="fit row wrap justify-start items-start content-start q-my-sm q-gutter-sm"
+            class="fit row wrap justify-between items-start content-start q-my-sm q-gutter-xs"
         >
             <div
                 v-for="page in numPages"
                 :key="page"
-                class="q-pa-xs"
+                class="col-11 col-md-3"
                 @click="selected[page] = !selected[page]"
                 :class="{ pageSelected: selected[page] }"
             >
-                <q-checkbox v-model="selected[page]" :label="`${page}`" />
-                <pdf :src="src" :page="page" />
+                <div class="row">
+                    <q-checkbox v-model="selected[page]" :label="`${page}`" />
+                    <q-space />
+                    <q-btn
+                        flat
+                        round
+                        icon="rotate_left"
+                        size="md"
+                        @click.stop="rotatePage(page, false)"
+                    />
+                    <q-btn
+                        flat
+                        round
+                        icon="rotate_right"
+                        size="md"
+                        @click.stop="rotatePage(page, true)"
+                    />
+                </div>
+                <div class="q-pa-xs">
+                    <pdf :src="src" :page="page" :rotate="rotate[page]" />
+                </div>
             </div>
         </div>
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
@@ -48,7 +67,7 @@
 
 <script>
 import pdf from "vue-pdf"
-import { PDFDocument } from "pdf-lib"
+import { PDFDocument, degrees } from "pdf-lib"
 
 const download = require("downloadjs")
 
@@ -66,6 +85,7 @@ export default {
             fileChosen: false,
             pdfDocument: null,
             fileLoaded: false,
+            rotate: {},
         }
     },
     computed: {
@@ -76,6 +96,13 @@ export default {
         },
     },
     methods: {
+        rotatePage(page, clockwise = true) {
+            const oldAngle = this.rotate[page] ?? 0
+            const newAngle = oldAngle + (clockwise ? 90 : -90)
+
+            this.rotate[page] =
+                newAngle < 0 ? 270 : newAngle >= 360 ? 0 : newAngle
+        },
         pickerPDF(file) {
             if (this.fileChosen && file) {
                 Object.assign(this.$data, this.$options.data())
@@ -98,10 +125,11 @@ export default {
                     this.fileLoaded = true
                 })
         },
-        unselectAllPages() {
+        unselectAllPages(cleanRotateInfo = true) {
             if (this.numPages) {
                 for (let index = 1; index <= this.numPages; index++) {
                     this.$set(this.selected, index, false)
+                    cleanRotateInfo && this.$set(this.rotate, index, 0)
                 }
             }
         },
@@ -140,7 +168,6 @@ export default {
                     ) {
                         this.createNewPDFDocumentPromise()
                             .then((pdfBytes) => {
-                                this.unselectAllPages()
                                 download(
                                     pdfBytes,
                                     `${fileNameChosen}.pdf`,
@@ -150,7 +177,7 @@ export default {
                             .catch((err) => {
                                 this.$q.notify({
                                     message:
-                                        "Algo deu ao criar o novo arquivo.",
+                                        "Algo deu errado ao criar o novo arquivo.",
                                     color: "negative",
                                 })
                                 console.error(err)
@@ -174,10 +201,16 @@ export default {
                 .then((pdfDoc) => (_newPdf = pdfDoc))
                 .then((pdfDoc) => pdfDoc.copyPages(this.pdfDocument, pages))
                 .then((copiedPages) => {
-                    copiedPages.forEach((page) => _newPdf.addPage(page))
+                    copiedPages.forEach((page, index) => {
+                        const angle = this.rotate[pages[index] + 1]
+                        page.setRotation(degrees(angle))
+                        _newPdf.addPage(page)
+                    })
+
                     if (this.$store.state.config.clearSelection) {
-                        this.unselectAllPages()
+                        this.unselectAllPages(false)
                     }
+
                     return _newPdf.save()
                 })
         },
@@ -210,7 +243,7 @@ export default {
                 })
                 .catch(() => {
                     this.$q.notify({
-                        message: "Algo deu ao criar o novo arquivo.",
+                        message: "Algo deu errado ao criar o novo arquivo.",
                         color: "negative",
                     })
                 })
@@ -227,5 +260,5 @@ export default {
 
 <style lang="sass" scoped>
 .pageSelected
-    border: 1px dotted $primary
+    background: $accent
 </style>

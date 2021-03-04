@@ -1,9 +1,8 @@
 <template>
     <q-layout view="lHh Lpr lFf" :class="bgClass">
-        <q-header class="bg-transparent">
+        <q-header :class="$q.dark.isActive ? 'bg-primary' : 'bg-secondary'">
             <q-toolbar>
                 <q-btn
-                    dense
                     unelevated
                     :color="$q.dark.isActive ? 'primary' : 'secondary'"
                     round
@@ -11,6 +10,7 @@
                     aria-label="Menu"
                     @click="leftDrawerOpen = !leftDrawerOpen"
                 />
+                <q-toolbar-title>PDF da Dona Sarah</q-toolbar-title>
             </q-toolbar>
         </q-header>
 
@@ -106,9 +106,7 @@
                     </template>
                 </q-banner>
             </transition>
-            <div class="skyline text-center text-caption q-pt-xl">
-                PDF da Dona Sarah ©{{ new Date().getFullYear() }}
-            </div>
+            <div class="skyline text-center text-caption q-pt-xl"></div>
         </q-footer>
     </q-layout>
 </template>
@@ -279,14 +277,14 @@ export default {
 
 <style lang="sass">
 .drawer-bg-light
-    background: $color1
-    background: -webkit-linear-gradient(to bottom, $color1, $color2)
-    background: linear-gradient(to bottom, $color1, $color2)
+    background: $secondary
+    // background: -webkit-linear-gradient(to bottom, $color1, $color2)
+    // background: linear-gradient(to bottom, $color1, $color2)
 
 .drawer-bg-dark
-    background: $color3
-    background: -webkit-linear-gradient(to bottom, $color3, $color4)
-    background: linear-gradient(to bottom, $color3, $color4)
+    background: $primary
+    // background: -webkit-linear-gradient(to bottom, $color3, $color4)
+    // background: linear-gradient(to bottom, $color3, $color4)
 
 .skyline
     background: url(../../public/skyline.png)

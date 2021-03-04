@@ -1,6 +1,6 @@
 {
   "name": "pdf-sarah",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Ferramenta para a Dona Sarah agrupar PDFs",
   "productName": "PDF da Dona Sarah",
   "author": "Eduardo Donato <eduardo.donato@gmail.com>",
@@ -13,9 +13,9 @@
     "icongenie": "icongenie generate -i ./public/logo.png --skip-trim --theme-color 753a88"
   },
   "dependencies": {
-    "@quasar/extras": "^1.9.17",
+    "@quasar/extras": "^1.9.18",
     "axios": "^0.18.1",
-    "core-js": "^3.9.0",
+    "core-js": "^3.9.1",
     "downloadjs": "^1.4.7",
     "pdf-lib": "^1.16.0",
     "quasar": "^1.15.4",
