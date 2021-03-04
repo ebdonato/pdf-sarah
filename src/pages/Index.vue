@@ -124,20 +124,45 @@ export default {
 
             if (!file) return
 
+            this.$q.loading.show()
+
             this.src = pdf.createLoadingTask(window.URL.createObjectURL(file))
-            this.src.promise.then((pdf) => {
-                this.numPages = pdf.numPages
-                this.fileChosen = true
 
-                this.unselectAllPages()
-            })
-
-            file.arrayBuffer()
-                .then((buffer) => PDFDocument.load(buffer))
-                .then((pdfDoc) => {
-                    this.pdfDocument = pdfDoc
+            Promise.all([this.src.promise, file.arrayBuffer()])
+                .then((results) => {
+                    //pdf para exibição
+                    this.numPages = results[0].numPages
+                    this.fileChosen = true
+                    this.unselectAllPages()
+                    //pdf para tratamento interno
+                    this.pdfDocument = PDFDocument.load(results[1])
                     this.fileLoaded = true
                 })
+                .catch((err) => {
+                    this.$q.notify({
+                        message: "Algo deu errado ao ler o PDF.",
+                        color: "negative",
+                    })
+                    console.error(err)
+                })
+                .finally(() => {
+                    this.$q.loading.hide()
+                })
+
+            // this.src.promise
+            //     .then((pdf) => {
+            //         this.numPages = pdf.numPages
+            //         this.fileChosen = true
+
+            //         this.unselectAllPages()
+            //     })
+
+            // file.arrayBuffer()
+            //     .then((buffer) => PDFDocument.load(buffer))
+            //     .then((pdfDoc) => {
+            //         this.pdfDocument = pdfDoc
+            //         this.fileLoaded = true
+            //     })
         },
         unselectAllPages(cleanRotateInfo = true) {
             if (this.numPages) {
