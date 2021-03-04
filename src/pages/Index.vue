@@ -31,7 +31,7 @@
         </q-file>
 
         <div
-            class="fit row wrap justify-between items-start content-start q-my-sm q-gutter-xs"
+            class="fit row wrap justify-around items-start content-start q-my-sm q-gutter-xs"
         >
             <div
                 v-for="page in numPages"
