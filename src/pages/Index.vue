@@ -12,7 +12,21 @@
             </template>
 
             <template v-slot:after>
-                <q-btn round dense flat icon="clear" @click="resetData" />
+                <div v-show="fileChosen" class="q-gutter-sm">
+                    <q-btn round dense flat icon="clear" @click="resetData" />
+                    <q-btn
+                        round
+                        dense
+                        flat
+                        icon="get_app"
+                        @click="getNewDoc"
+                        :disable="!fileLoaded || !numSelectedPages"
+                    >
+                        <q-badge color="red" floating v-if="numSelectedPages">{{
+                            numSelectedPages
+                        }}</q-badge>
+                    </q-btn>
+                </div>
             </template>
         </q-file>
 
