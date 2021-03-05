@@ -135,7 +135,10 @@ export default {
                     this.fileChosen = true
                     this.unselectAllPages()
                     //pdf para tratamento interno
-                    this.pdfDocument = PDFDocument.load(results[1])
+                    return PDFDocument.load(results[1])
+                })
+                .then((pdfDoc) => {
+                    this.pdfDocument = pdfDoc
                     this.fileLoaded = true
                 })
                 .catch((err) => {
@@ -148,21 +151,6 @@ export default {
                 .finally(() => {
                     this.$q.loading.hide()
                 })
-
-            // this.src.promise
-            //     .then((pdf) => {
-            //         this.numPages = pdf.numPages
-            //         this.fileChosen = true
-
-            //         this.unselectAllPages()
-            //     })
-
-            // file.arrayBuffer()
-            //     .then((buffer) => PDFDocument.load(buffer))
-            //     .then((pdfDoc) => {
-            //         this.pdfDocument = pdfDoc
-            //         this.fileLoaded = true
-            //     })
         },
         unselectAllPages(cleanRotateInfo = true) {
             if (this.numPages) {
