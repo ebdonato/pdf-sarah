@@ -217,29 +217,32 @@ export default {
                     }
                 })
         },
-        createNewPDFDocumentPromise() {
+        async createNewPDFDocumentPromise() {
             const pages = Object.keys(this.selected)
                 .filter((page) => this.selected[page])
                 .map((page) => parseInt(page) - 1)
 
-            let _newPdf
+            const newPdf = await PDFDocument.create()
 
-            return PDFDocument.create()
-                .then((pdfDoc) => (_newPdf = pdfDoc))
-                .then((pdfDoc) => pdfDoc.copyPages(this.pdfDocument, pages))
-                .then((copiedPages) => {
-                    copiedPages.forEach((page, index) => {
-                        const angle = this.rotate[pages[index] + 1]
-                        page.setRotation(degrees(angle))
-                        _newPdf.addPage(page)
-                    })
+            const copiedPages = await newPdf.copyPages(this.pdfDocument, pages)
 
-                    if (this.$store.state.config.clearSelection) {
-                        this.unselectAllPages(false)
-                    }
+            copiedPages.forEach((page) => {
+                newPdf.addPage(page)
+            })
 
-                    return _newPdf.save()
-                })
+            if (this.$store.state.config.clearSelection) {
+                this.unselectAllPages(false)
+            }
+
+            const angles = pages.map((page) => this.rotate[page + 1])
+
+            angles.forEach((angle, index) => {
+                const currentAngle = newPdf.getPage(index).getRotation().angle
+                const newAngle = angle - currentAngle
+                newPdf.getPage(index).setRotation(degrees(newAngle))
+            })
+
+            return newPdf.save()
         },
         async createNewDoc() {
             const opts = {
