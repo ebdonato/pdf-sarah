@@ -1,44 +1,44 @@
 {
-  "name": "pdf-sarah",
-  "version": "3.3.0",
-  "description": "Ferramenta para a Dona Sarah agrupar PDFs",
-  "productName": "PDF da Dona Sarah",
-  "author": "Eduardo Donato <eduardo.donato@gmail.com>",
-  "private": true,
-  "scripts": {
-    "dev": "quasar dev",
-    "build": "quasar build",
-    "dev-pwa": "quasar dev -m pwa",
-    "build-pwa": "quasar build -m pwa",
-    "icongenie": "icongenie generate -i ./public/logo.png --skip-trim --theme-color 753a88"
-  },
-  "dependencies": {
-    "@quasar/extras": "^1.9.19",
-    "axios": "^0.18.1",
-    "core-js": "^3.9.1",
-    "downloadjs": "^1.4.7",
-    "pdf-lib": "^1.16.0",
-    "quasar": "^1.15.5",
-    "vue-pdf": "^4.2.0"
-  },
-  "devDependencies": {
-    "@quasar/app": "^2.2.1",
-    "workbox-webpack-plugin": "^5.1.4"
-  },
-  "browserslist": [
-    "last 10 Chrome versions",
-    "last 10 Firefox versions",
-    "last 4 Edge versions",
-    "last 7 Safari versions",
-    "last 8 Android versions",
-    "last 8 ChromeAndroid versions",
-    "last 8 FirefoxAndroid versions",
-    "last 10 iOS versions",
-    "last 5 Opera versions"
-  ],
-  "engines": {
-    "node": ">= 10.18.1",
-    "npm": ">= 6.13.4",
-    "yarn": ">= 1.21.1"
-  }
+    "name": "pdf-sarah",
+    "version": "3.3.1",
+    "description": "Ferramenta para a Dona Sarah agrupar PDFs",
+    "productName": "PDF da Dona Sarah",
+    "author": "Eduardo Donato <eduardo.donato@gmail.com>",
+    "private": true,
+    "scripts": {
+        "dev": "quasar dev",
+        "build": "quasar build",
+        "dev-pwa": "quasar dev -m pwa",
+        "build-pwa": "quasar build -m pwa",
+        "icongenie": "icongenie generate -i ./public/logo.png --skip-trim --theme-color 753a88"
+    },
+    "dependencies": {
+        "@quasar/extras": "^1.9.19",
+        "axios": "^0.18.1",
+        "core-js": "^3.9.1",
+        "downloadjs": "^1.4.7",
+        "pdf-lib": "^1.16.0",
+        "quasar": "^1.15.5",
+        "vue-pdf": "^4.2.0"
+    },
+    "devDependencies": {
+        "@quasar/app": "^2.2.1",
+        "workbox-webpack-plugin": "^5.1.4"
+    },
+    "browserslist": [
+        "last 10 Chrome versions",
+        "last 10 Firefox versions",
+        "last 4 Edge versions",
+        "last 7 Safari versions",
+        "last 8 Android versions",
+        "last 8 ChromeAndroid versions",
+        "last 8 FirefoxAndroid versions",
+        "last 10 iOS versions",
+        "last 5 Opera versions"
+    ],
+    "engines": {
+        "node": ">= 10.18.1",
+        "npm": ">= 6.13.4",
+        "yarn": ">= 1.21.1"
+    }
 }

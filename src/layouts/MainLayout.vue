@@ -105,7 +105,12 @@
                     </template>
                 </q-banner>
             </transition>
-            <div class="text-center text-caption text-weight-thin">&copy; {{ new Date().getFullYear() }}</div>
+            <div
+                class="text-center text-caption text-weight-thin"
+                :class="$q.dark.isActive ? 'text-secondary' : 'text-primary'"
+            >
+                &copy; {{ new Date().getFullYear() }}
+            </div>
         </q-footer>
     </q-layout>
 </template>

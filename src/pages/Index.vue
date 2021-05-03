@@ -47,7 +47,7 @@
                 </div>
             </div>
         </div>
-        <q-page-sticky position="bottom-right" :offset="[18, 0]">
+        <q-page-sticky position="bottom-right" :offset="[18, 18]">
             <q-btn fab icon="get_app" color="accent" @click="getNewDoc" :disable="!fileLoaded || !numSelectedPages">
                 <q-badge color="red" floating v-if="numSelectedPages">{{ numSelectedPages }}</q-badge>
             </q-btn>
