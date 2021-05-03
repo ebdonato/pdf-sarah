@@ -4,64 +4,86 @@
             <q-toolbar>
                 <q-btn
                     unelevated
-                    :color="$q.dark.isActive ? 'primary' : 'secondary'"
+                    :text-color="$q.dark.isActive ? 'secondary' : 'primary'"
                     round
                     icon="menu"
                     aria-label="Menu"
                     @click="leftDrawerOpen = !leftDrawerOpen"
                 />
-                <q-toolbar-title>PDF da Dona Sarah</q-toolbar-title>
+                <q-toolbar-title :class="$q.dark.isActive ? 'text-secondary' : 'text-primary'"
+                    >PDF da Dona Sarah</q-toolbar-title
+                >
             </q-toolbar>
         </q-header>
 
-        <q-drawer
-            v-model="leftDrawerOpen"
-            bordered
-            :content-class="$q.dark.isActive ? 'bg-purple-4' : 'bg-purple-1'"
-        >
-            <div class="q-ma-none q-pa-md text-center">
-                <img alt="PDF da Dona Sarah" src="icons\favicon-128x128.png" />
-            </div>
+        <q-drawer v-model="leftDrawerOpen" bordered :content-class="$q.dark.isActive ? 'bg-purple-4' : 'bg-purple-1'">
+            <div class="full-height column no-wrap justify-between">
+                <div>
+                    <div class="q-ma-none q-pa-md text-center">
+                        <img alt="PDF da Dona Sarah" src="icons\favicon-128x128.png" />
+                    </div>
+                    <q-btn
+                        flat
+                        size="sm"
+                        :icon="showLinks ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+                        @click="showLinks = !showLinks"
+                        class="full-width"
+                    />
 
-            <q-list>
-                <q-item-label header> Links </q-item-label>
-                <EssentialLink
-                    v-for="link in essentialLinks"
-                    :key="link.title"
-                    v-bind="link"
-                />
-            </q-list>
+                    <q-slide-transition :duration="500">
+                        <q-list v-if="showLinks">
+                            <q-item-label header> Links </q-item-label>
+                            <EssentialLink v-for="link in essentialLinks" :key="link.title" v-bind="link" />
+                        </q-list>
+                    </q-slide-transition>
 
-            <q-select
-                outlined
-                v-model="theme"
-                :options="['Claro', 'Escuro']"
-                label="Tema"
-                class="q-ma-md"
-            />
-            <q-select
-                outlined
-                v-model="outputFolder"
-                :options="['Local Padrão', 'Escolher local']"
-                label="Salvar em"
-                class="q-ma-md"
-            />
-            <q-select
-                outlined
-                v-model="clearSelection"
-                :options="['Sim', 'Não']"
-                label="Limpar seleção ao salvar"
-                class="q-ma-md"
-            />
+                    <div>
+                        <q-select
+                            outlined
+                            v-model="theme"
+                            :options="['Claro', 'Escuro']"
+                            label="Tema"
+                            class="q-ma-md"
+                        />
+                        <q-select
+                            outlined
+                            v-model="outputFolder"
+                            :options="['Local Padrão', 'Escolher local']"
+                            label="Salvar em"
+                            class="q-ma-md"
+                        />
+                        <q-select
+                            outlined
+                            v-model="clearSelection"
+                            :options="['Sim', 'Não']"
+                            label="Limpar seleção ao salvar"
+                            class="q-ma-md"
+                        />
+                        <div class="q-ma-md">
+                            <div>Tamanho das Páginas</div>
 
-            <div class="row q-ma-md items-end">
-                <q-btn round @click="autoClose">
-                    <q-avatar>
-                        <img src="eu.jpg" />
-                    </q-avatar>
-                </q-btn>
-                <q-space />
-                <span> App v{{ version }} | Quasar v{{ $q.version }} </span>
+                            <q-slider
+                                v-model="zoomLevel"
+                                :min="10"
+                                :max="100"
+                                :step="10"
+                                snap
+                                label
+                                :label-value="`${zoomLevel}%`"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row q-ma-md items-end">
+                    <q-btn round @click="autoClose">
+                        <q-avatar>
+                            <img src="eu.jpg" />
+                        </q-avatar>
+                    </q-btn>
+                    <q-space />
+                    <span> App v{{ version }} | Quasar v{{ $q.version }} </span>
+                </div>
             </div>
         </q-drawer>
 
@@ -69,44 +91,21 @@
             <router-view />
         </q-page-container>
 
-        <q-footer class="bg-transparent">
-            <transition
-                appear
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut"
-            >
-                <q-banner
-                    inline-actions
-                    class="text-primary"
-                    v-show="showAppInstallBanner"
-                >
+        <q-footer :class="$q.dark.isActive ? 'footer-bg-dark' : 'footer-bg-light'">
+            <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+                <q-banner inline-actions class="text-primary" v-show="showAppInstallBanner">
                     <template v-slot:avatar>
                         <q-icon name="system_update" color="primary" />
                     </template>
                     Deseja instalar o aplicativo?
                     <template v-slot:action>
-                        <q-btn
-                            flat
-                            color="primary"
-                            label="Sim"
-                            @click="installApp"
-                        />
-                        <q-btn
-                            flat
-                            color="primary"
-                            label="Depois"
-                            @click="showAppInstallBanner = false"
-                        />
-                        <q-btn
-                            flat
-                            color="primary"
-                            label="Nunca"
-                            @click="neverShowAppInstallBanner"
-                        />
+                        <q-btn flat color="primary" label="Sim" @click="installApp" />
+                        <q-btn flat color="primary" label="Depois" @click="showAppInstallBanner = false" />
+                        <q-btn flat color="primary" label="Nunca" @click="neverShowAppInstallBanner" />
                     </template>
                 </q-banner>
             </transition>
-            <div class="skyline text-center text-caption q-pt-xl"></div>
+            <div class="text-center text-caption text-weight-thin">&copy; {{ new Date().getFullYear() }}</div>
         </q-footer>
     </q-layout>
 </template>
@@ -127,12 +126,6 @@ const linksData = [
         caption: "@ebdonato",
         icon: "rss_feed",
         link: "https://twitter.com/ebdonato",
-    },
-    {
-        title: "Facebook",
-        caption: "@ebdonato",
-        icon: "public",
-        link: "https://fb.me/ebdonato",
     },
     {
         title: "Gravatar",
@@ -159,7 +152,6 @@ export default {
     components: { EssentialLink },
     data() {
         return {
-            leftDrawerOpen: false,
             essentialLinks: linksData,
             version,
             showAppInstallBanner: false,
@@ -169,17 +161,39 @@ export default {
     computed: {
         outputFolder: {
             get() {
-                return this.$store.state.config.defaultOutputFolder
-                    ? "Local Padrão"
-                    : "Escolher local"
+                return this.$store.state.config.defaultOutputFolder ? "Local Padrão" : "Escolher local"
             },
             set(value) {
                 const option = value === "Local Padrão"
-                this.$store.commit(
-                    "config/updateDefaultOutputFolderConfig",
-                    option
-                )
+                this.$store.commit("config/updateDefaultOutputFolderConfig", option)
                 this.$q.localStorage.set("defaultOutputFolder", option)
+            },
+        },
+        zoomLevel: {
+            get() {
+                return this.$store.state.config.zoomLevel
+            },
+            set(value) {
+                this.$store.commit("config/updateZoomLevelConfig", value)
+                this.$q.localStorage.set("zoomLevel", value)
+            },
+        },
+        showLinks: {
+            get() {
+                return this.$store.state.config.showLinks
+            },
+            set(value) {
+                this.$store.commit("config/updateShowLinksConfig", !!value)
+                this.$q.localStorage.set("showLinks", !!value)
+            },
+        },
+        leftDrawerOpen: {
+            get() {
+                return this.$store.state.config.leftDrawerOpen
+            },
+            set(value) {
+                this.$store.commit("config/updateLeftDrawerOpenConfig", !!value)
+                this.$q.localStorage.set("leftDrawerOpen", !!value)
             },
         },
         clearSelection: {
@@ -240,7 +254,7 @@ export default {
             // Show the install prompt
             this.deferredPrompt.prompt()
             // Wait for the user to respond to the prompt
-            this.deferredPrompt.userChoice.then((choiceResult) => {
+            this.deferredPrompt.userChoice.then(choiceResult => {
                 if (choiceResult.outcome === "accepted") {
                     console.log("User accepted the install prompt")
                 } else {
@@ -254,12 +268,10 @@ export default {
         },
     },
     mounted() {
-        const neverShowAppInstallBanner = this.$q.localStorage.getItem(
-            "neverShowAppInstallBanner"
-        )
+        const neverShowAppInstallBanner = this.$q.localStorage.getItem("neverShowAppInstallBanner")
 
         if (!neverShowAppInstallBanner) {
-            window.addEventListener("beforeinstallprompt", (e) => {
+            window.addEventListener("beforeinstallprompt", e => {
                 // Prevent the mini-infobar from appearing on mobile
                 e.preventDefault()
                 // Stash the event so it can be triggered later.
@@ -285,6 +297,16 @@ export default {
     background: $primary
     // background: -webkit-linear-gradient(to bottom, $color3, $color4)
     // background: linear-gradient(to bottom, $color3, $color4)
+
+.footer-bg-light
+    background: $secondary
+    //background: -webkit-linear-gradient(to bottom, $secondary, $dark)
+    //background: linear-gradient(to bottom, $secondary, $dark)
+.footer-bg-dark
+    background: $primary
+    //background: -webkit-linear-gradient(to bottom, $primary, $dark)
+    //background: linear-gradient(to bottom, $primary, $dark)
+
 
 .skyline
     background: url(../../public/skyline.png)

@@ -13,10 +13,9 @@ export default {
             "config/updateDefaultOutputFolderConfig",
             this.$q.localStorage.getItem("defaultOutputFolder") ?? true
         )
-        this.$store.commit(
-            "config/updateClearSelectionConfig",
-            this.$q.localStorage.getItem("clearSelection") ?? true
-        )
+        this.$store.commit("config/updateZoomLevelConfig", this.$q.localStorage.getItem("zoomLevel") ?? 30)
+        this.$store.commit("config/updateShowLinksConfig", this.$q.localStorage.getItem("showLinks") ?? true)
+        this.$store.commit("config/updateLeftDrawerOpenConfig", this.$q.localStorage.getItem("leftDrawerOpen") ?? true)
     },
 }
 </script>

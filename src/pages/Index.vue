@@ -22,58 +22,34 @@
                         @click="getNewDoc"
                         :disable="!fileLoaded || !numSelectedPages"
                     >
-                        <q-badge color="red" floating v-if="numSelectedPages">{{
-                            numSelectedPages
-                        }}</q-badge>
+                        <q-badge color="red" floating v-if="numSelectedPages">{{ numSelectedPages }}</q-badge>
                     </q-btn>
                 </div>
             </template>
         </q-file>
 
-        <div
-            class="fit row wrap justify-around items-start content-start q-my-sm q-gutter-xs"
-        >
+        <div class="fit row wrap justify-around items-start content-start q-my-sm q-gutter-xs">
             <div
                 v-for="page in numPages"
                 :key="page"
-                class="col-11 col-md-3"
+                :style="`width: ${$store.state.config.zoomLevel}%;`"
                 @click="selected[page] = !selected[page]"
                 :class="{ pageSelected: selected[page] }"
             >
                 <div class="row">
                     <q-checkbox v-model="selected[page]" :label="`${page}`" />
                     <q-space />
-                    <q-btn
-                        flat
-                        round
-                        icon="rotate_left"
-                        size="md"
-                        @click.stop="rotatePage(page, false)"
-                    />
-                    <q-btn
-                        flat
-                        round
-                        icon="rotate_right"
-                        size="md"
-                        @click.stop="rotatePage(page, true)"
-                    />
+                    <q-btn flat round icon="rotate_left" size="md" @click.stop="rotatePage(page, false)" />
+                    <q-btn flat round icon="rotate_right" size="md" @click.stop="rotatePage(page, true)" />
                 </div>
                 <div class="q-pa-xs">
                     <pdf :src="src" :page="page" :rotate="rotate[page]" />
                 </div>
             </div>
         </div>
-        <q-page-sticky position="bottom-right" :offset="[18, 18]">
-            <q-btn
-                fab
-                icon="get_app"
-                color="accent"
-                @click="getNewDoc"
-                :disable="!fileLoaded || !numSelectedPages"
-            >
-                <q-badge color="red" floating v-if="numSelectedPages">{{
-                    numSelectedPages
-                }}</q-badge>
+        <q-page-sticky position="bottom-right" :offset="[18, 0]">
+            <q-btn fab icon="get_app" color="accent" @click="getNewDoc" :disable="!fileLoaded || !numSelectedPages">
+                <q-badge color="red" floating v-if="numSelectedPages">{{ numSelectedPages }}</q-badge>
             </q-btn>
         </q-page-sticky>
     </q-page>
@@ -104,9 +80,7 @@ export default {
     },
     computed: {
         numSelectedPages() {
-            return Object.keys(this.selected).filter(
-                (page) => this.selected[page]
-            ).length
+            return Object.keys(this.selected).filter(page => this.selected[page]).length
         },
     },
     methods: {
@@ -114,8 +88,7 @@ export default {
             const oldAngle = this.rotate[page] ?? 0
             const newAngle = oldAngle + (clockwise ? 90 : -90)
 
-            this.rotate[page] =
-                newAngle < 0 ? 270 : newAngle >= 360 ? 0 : newAngle
+            this.rotate[page] = newAngle < 0 ? 270 : newAngle >= 360 ? 0 : newAngle
         },
         pickerPDF(file) {
             if (this.fileChosen && file) {
@@ -129,7 +102,7 @@ export default {
             this.src = pdf.createLoadingTask(window.URL.createObjectURL(file))
 
             Promise.all([this.src.promise, file.arrayBuffer()])
-                .then((results) => {
+                .then(results => {
                     //pdf para exibição
                     this.numPages = results[0].numPages
                     this.fileChosen = true
@@ -137,11 +110,11 @@ export default {
                     //pdf para tratamento interno
                     return PDFDocument.load(results[1])
                 })
-                .then((pdfDoc) => {
+                .then(pdfDoc => {
                     this.pdfDocument = pdfDoc
                     this.fileLoaded = true
                 })
-                .catch((err) => {
+                .catch(err => {
                     this.$q.notify({
                         message: "Algo deu errado ao ler o PDF.",
                         color: "negative",
@@ -165,9 +138,7 @@ export default {
             const rg2 = /^\./ // cannot start with dot (.)
             const rg3 = /^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i // forbidden file names
 
-            return (
-                rg1.test(filename) && !rg2.test(filename) && !rg3.test(filename)
-            )
+            return rg1.test(filename) && !rg2.test(filename) && !rg3.test(filename)
         },
         getNewDoc() {
             if (this.$store.state.config.defaultOutputFolder) {
@@ -188,23 +159,15 @@ export default {
                     cancel: true,
                     persistent: true,
                 })
-                .onOk((fileNameChosen) => {
-                    if (
-                        typeof fileNameChosen === "string" &&
-                        this.isValidFilename(fileNameChosen)
-                    ) {
+                .onOk(fileNameChosen => {
+                    if (typeof fileNameChosen === "string" && this.isValidFilename(fileNameChosen)) {
                         this.createNewPDFDocumentPromise()
-                            .then((pdfBytes) => {
-                                download(
-                                    pdfBytes,
-                                    `${fileNameChosen}.pdf`,
-                                    "application/pdf"
-                                )
+                            .then(pdfBytes => {
+                                download(pdfBytes, `${fileNameChosen}.pdf`, "application/pdf")
                             })
-                            .catch((err) => {
+                            .catch(err => {
                                 this.$q.notify({
-                                    message:
-                                        "Algo deu errado ao criar o novo arquivo.",
+                                    message: "Algo deu errado ao criar o novo arquivo.",
                                     color: "negative",
                                 })
                                 console.error(err)
@@ -219,14 +182,14 @@ export default {
         },
         async createNewPDFDocumentPromise() {
             const pages = Object.keys(this.selected)
-                .filter((page) => this.selected[page])
-                .map((page) => parseInt(page) - 1)
+                .filter(page => this.selected[page])
+                .map(page => parseInt(page) - 1)
 
             const newPdf = await PDFDocument.create()
 
             const copiedPages = await newPdf.copyPages(this.pdfDocument, pages)
 
-            copiedPages.forEach((page) => {
+            copiedPages.forEach(page => {
                 newPdf.addPage(page)
             })
 
@@ -234,7 +197,7 @@ export default {
                 this.unselectAllPages(false)
             }
 
-            const angles = pages.map((page) => this.rotate[page + 1])
+            const angles = pages.map(page => this.rotate[page + 1])
 
             angles.forEach((angle, index) => {
                 const currentAngle = newPdf.getPage(index).getRotation().angle
@@ -264,7 +227,7 @@ export default {
             }
 
             this.createNewPDFDocumentPromise()
-                .then((pdfBytes) => writable.write(pdfBytes))
+                .then(pdfBytes => writable.write(pdfBytes))
                 .then(() => {
                     this.$q.notify({
                         message: "Arquivo criado com sucesso",
