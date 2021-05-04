@@ -59,19 +59,13 @@
                             label="Limpar seleção ao salvar"
                             class="q-ma-md"
                         />
-                        <div class="q-ma-md">
-                            <div>Tamanho das Páginas</div>
-
-                            <q-slider
-                                v-model="zoomLevel"
-                                :min="10"
-                                :max="100"
-                                :step="10"
-                                snap
-                                label
-                                :label-value="`${zoomLevel}%`"
-                            />
-                        </div>
+                        <q-select
+                            outlined
+                            v-model="zoomLevel"
+                            :options="zoomLevelOptions"
+                            label="Tamanho das Páginas (%)"
+                            class="q-ma-md"
+                        />
                     </div>
                 </div>
 
@@ -119,7 +113,11 @@
 import EssentialLink from "components/EssentialLink.vue"
 import { version } from "../../package.json"
 
-const linksData = [
+const zoomLevelOptions = Array(10)
+    .fill(1)
+    .map((element, index) => (index + element) * 10)
+
+const essentialLinks = [
     {
         title: "Github",
         caption: "github.com/ebdonato",
@@ -157,7 +155,8 @@ export default {
     components: { EssentialLink },
     data() {
         return {
-            essentialLinks: linksData,
+            zoomLevelOptions,
+            essentialLinks,
             version,
             showAppInstallBanner: false,
             deferredPrompt: null,

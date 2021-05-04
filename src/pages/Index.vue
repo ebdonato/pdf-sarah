@@ -28,7 +28,7 @@
             </template>
         </q-file>
 
-        <div class="fit row wrap justify-around items-start content-start q-my-sm q-gutter-xs">
+        <div class="fit row wrap justify-around items-start content-start q-my-sm q-gutter-xs" v-show="!dialog">
             <div
                 v-for="page in numPages"
                 :key="page"
@@ -36,21 +36,36 @@
                 @click="selected[page] = !selected[page]"
                 :class="{ pageSelected: selected[page] }"
             >
-                <div class="row">
+                <div class="row justify-between">
                     <q-checkbox v-model="selected[page]" :label="`${page}`" />
-                    <q-space />
-                    <q-btn flat round icon="rotate_left" size="md" @click.stop="rotatePage(page, false)" />
-                    <q-btn flat round icon="rotate_right" size="md" @click.stop="rotatePage(page, true)" />
+                    <q-btn flat round icon="search" size="md" @click.stop="showDialog(page)" />
+                    <div>
+                        <q-btn flat round icon="rotate_left" size="md" @click.stop="rotatePage(page, false)" />
+                        <q-btn flat round icon="rotate_right" size="md" @click.stop="rotatePage(page, true)" />
+                    </div>
                 </div>
                 <div class="q-pa-xs">
                     <pdf :src="src" :page="page" :rotate="rotate[page]" />
                 </div>
             </div>
         </div>
+
+        <div v-show="dialog" class="q-my-sm q-pa-xs">
+            <pdf :src="src" :page="dialogPage" :rotate="rotate[dialogPage]" />
+        </div>
+
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
-            <q-btn fab icon="get_app" color="accent" @click="getNewDoc" :disable="!fileLoaded || !numSelectedPages">
+            <q-btn
+                v-if="!dialog"
+                fab
+                icon="get_app"
+                color="accent"
+                @click="getNewDoc"
+                :disable="!fileLoaded || !numSelectedPages"
+            >
                 <q-badge color="red" floating v-if="numSelectedPages">{{ numSelectedPages }}</q-badge>
             </q-btn>
+            <q-btn v-else fab icon="keyboard_return" color="accent" @click="dialog = !dialog" />
         </q-page-sticky>
     </q-page>
 </template>
@@ -58,8 +73,6 @@
 <script>
 import pdf from "vue-pdf"
 import { PDFDocument, degrees } from "pdf-lib"
-
-const download = require("downloadjs")
 
 export default {
     name: "PageIndex",
@@ -76,6 +89,8 @@ export default {
             pdfDocument: null,
             fileLoaded: false,
             rotate: {},
+            dialog: false,
+            dialogPage: 1,
         }
     },
     computed: {
@@ -84,6 +99,12 @@ export default {
         },
     },
     methods: {
+        showDialog(page) {
+            if (page >= 1 && page <= this.numPages) {
+                this.dialogPage = page
+                this.dialog = true
+            }
+        },
         rotatePage(page, clockwise = true) {
             const oldAngle = this.rotate[page] ?? 0
             const newAngle = oldAngle + (clockwise ? 90 : -90)
@@ -163,7 +184,7 @@ export default {
                     if (typeof fileNameChosen === "string" && this.isValidFilename(fileNameChosen)) {
                         this.createNewPDFDocumentPromise()
                             .then(pdfBytes => {
-                                download(pdfBytes, `${fileNameChosen}.pdf`, "application/pdf")
+                                require("downloadjs")(pdfBytes, `${fileNameChosen}.pdf`, "application/pdf")
                             })
                             .catch(err => {
                                 this.$q.notify({
