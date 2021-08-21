@@ -2,8 +2,7 @@
 
 param
 (
-    $dockeruser = "ebdonato",
-    $api = "https://api.eletromarquez.app"
+    $dockeruser = "ebdonato"
 )
 
 $version = (Get-Content package.json) -join "`n" | ConvertFrom-Json | Select -ExpandProperty "version"
@@ -14,7 +13,7 @@ Write-Host $repository $version
 
 Write-Host "Building Image"
 
-docker build . --build-arg API=${api} -t ${dockeruser}/${repository}:${version}
+docker build . -t ${dockeruser}/${repository}:${version}
 
 Write-Host "Creating latest tag"
 
