@@ -1,0 +1,11 @@
+version: "3"
+services:
+    landing:
+        image: node:14
+        command: sh -c "npm i && npm start"
+        working_dir: /home/node/app
+        volumes:
+            - .:/home/node/app
+        ports:
+            - 80:8080
+            - 8080:8080
